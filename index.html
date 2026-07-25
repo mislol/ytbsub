@@ -489,14 +489,74 @@
         #import-file-input {
             display: none;
         }
+
+
+        /* ==================== تنسيق القائمة المبسطة المضافة حديثاً ==================== */
+        .cards-list-simple {
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* تباعد مريح بين الأسطر على الهاتف */
+        }
+
+        .simple-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px; /* مساحة لمس مريحة ومناسبة لشاشات اللمس */
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent; /* تمنع ظهور وميض أزرق عند اللمس في الهواتف */
+        }
+
+        /* تأثير التمرير للكمبيوتر واللمس للهاتف */
+        .simple-list-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .simple-list-item:active {
+            transform: scale(0.99); /* تأثير ارتداد خفيف عند اللمس على الهاتف */
+            background-color: var(--border-color);
+        }
+
+        /* تمييز المواقع المفضلة بشريط ذهبي جانبي ناعم */
+        .simple-list-item.favorite {
+            border-right: 4px solid var(--fav-color);
+        }
+
+        .simple-item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .simple-item-fav {
+            color: var(--fav-color);
+            font-size: 16px;
+        }
+
+        .simple-item-emoji {
+            font-size: 16px;
+        }
+
+        .simple-item-name {
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <h1>📚 مكتبتي التعليمية</h1>
-        <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">🌙 الوضع الداكن</button>
+        <div style="display: flex; gap: 8px;">
+            <button class="theme-btn" id="view-toggle" onclick="toggleView()">📋 عرض مبسط</button>
+            <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">🌙 الوضع الداكن</button>
+        </div>
     </header>
 
     <!-- لوحة إحصائيات سريعة -->
@@ -630,6 +690,7 @@
     let items = [];
     let categories = [];
     let selectedPlatformFilter = 'الكل';
+    let currentView = 'grid'; // المتغير المسؤول عن طريقة العرض الحالية
 
     window.onload = function() {
         // تحميل المصادر التعليمية
@@ -659,7 +720,9 @@
             document.documentElement.setAttribute('data-theme', 'dark');
             document.getElementById('theme-toggle').innerText = '☀️ الوضع المضيء';
         }
-
+// تحميل وضع العرض المفضل من الذاكرة
+        currentView = localStorage.getItem('library_view') || 'grid';
+        updateViewToggleButton();
         renderApp();
     };
 
