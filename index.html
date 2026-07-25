@@ -546,6 +546,43 @@
         .simple-item-name {
             color: var(--text-color);
         }
+
+        /* ==================== تنسيقات صور البروفيل الدائرية والمعاينة ==================== */
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        .item-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .modal-avatar-preview {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+            background: var(--bg-color);
+            display: none; /* يظهر فقط عند وجود رابط صورة */
+        }
     </style>
 </head>
 <body>
@@ -646,6 +683,14 @@
                 <select id="item-category">
                     <!-- يتم ملؤها ديناميكياً برمجياً -->
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="item-image-url">رابط صورة مخصصة (اختياري/ بروفيل):</label>
+                <input type="text" id="item-image-url" placeholder="انسخ رابط بروفيل فيسبوك/يوتيوب والصقه هنا" oninput="updateModalImagePreview()">
+                <div class="modal-preview-container">
+                    <img id="modal-preview-img" class="modal-avatar-preview" src="" alt="معاينة">
+                    <span id="modal-preview-text" style="font-size: 12px; color: var(--text-muted);">اكتب رابط الصورة للمعاينة الفورية</span>
+                </div>
             </div>
 
             <div class="form-group">
@@ -863,30 +908,39 @@
                     const card = document.createElement('div');
                     
                     if (currentView === 'list') {
-                        // كود بناء السطر المبسط الخالي من المشتتات والآمن للهواتف
+                        // كود بناء السطر المبسط مع صورة البروفيل
                         card.className = `simple-list-item ${item.favorite ? 'favorite' : ''}`;
                         card.setAttribute('onclick', `openLink('${item.url}'); trackVisit('${item.id}');`);
                         card.innerHTML = `
                             <div class="simple-item-content">
                                 <span class="simple-item-fav">${item.favorite ? '★' : '☆'}</span>
-                                <span class="simple-item-emoji">${getPlatformIcon(item.platform)}</span>
+                                <div class="avatar-container" style="width: 32px; height: 32px;">
+                                    <img src="${getItemAvatarSrc(item)}" class="item-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                                    <span class="avatar-fallback-emoji" style="display:none; font-size: 16px;">${getPlatformIcon(item.platform)}</span>
+                                </div>
                                 <span class="simple-item-name">${item.name}</span>
                             </div>
                             <span style="font-size: 14px; color: var(--text-muted); padding-left: 5px;">➔</span>
                         `;
                     } else {
-                        // كود بناء البطاقة الافتراضية التفصيلية
+                        // كود بناء البطاقة الافتراضية التفصيلية مع صورة بروفيل عريضة ومحاذاة ممتازة
                         card.className = `card ${item.favorite ? 'favorite' : ''}`;
                         const showReorder = sortBy === 'custom' ? 'flex' : 'none';
                         card.innerHTML = `
-                            <div class="card-header">
-                                <div class="card-title" onclick="openLink('${item.url}')">
-                                    ${item.favorite ? '⭐ ' : ''}${item.name}
+                            <div class="card-header" style="gap: 12px; display: flex; align-items: center;">
+                                <div class="avatar-container">
+                                    <img src="${getItemAvatarSrc(item)}" class="item-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                                    <span class="avatar-fallback-emoji" style="display:none; font-size: 20px;">${getPlatformIcon(item.platform)}</span>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="card-title" onclick="openLink('${item.url}')" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${item.favorite ? '⭐ ' : ''}${item.name}
+                                    </div>
+                                    <span class="platform-badge" style="margin-bottom: 0; margin-top: 3px; display: inline-block;">${getPlatformIcon(item.platform)} ${item.platform}</span>
                                 </div>
                                 <button class="card-fav-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}')" title="تثبيت في الأعلى">★</button>
                             </div>
-                            <span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span>
-                            <div class="card-notes">${item.notes || 'لا توجد ملاحظات...'}</div>
+                            <div class="card-notes" style="margin-top: 10px;">${item.notes || 'لا توجد ملاحظات...'}</div>
                             <div class="card-meta">آخر متابعة: ${getRelativeTime(item.lastFollowed)}</div>
                             
                             <div class="reorder-btns" style="display: ${showReorder}">
@@ -1013,6 +1067,10 @@
         document.getElementById('item-id').value = "";
         document.getElementById('item-name').value = "";
         document.getElementById('item-url').value = "";
+        // سطر تصفير حقل الصورة المخصصة الجديد ومعاينته
+        document.getElementById('item-image-url').value = "";
+        updateModalImagePreview();
+        
         document.querySelector('input[name="item-platform"][value="YouTube"]').checked = true;
         document.getElementById('item-category').selectedIndex = 0;
         document.getElementById('item-notes').value = "";
@@ -1029,7 +1087,10 @@
         document.getElementById('item-name').value = item.name;
         document.getElementById('item-url').value = item.url;
         
-        // التحقق من تعيين المنصة المسجلة سابقاً
+        // جلب حقل الصورة المخصصة القديمة ومعاينتها
+        document.getElementById('item-image-url').value = item.imageUrl || '';
+        updateModalImagePreview();
+
         const targetRadio = document.querySelector(`input[name="item-platform"][value="${item.platform}"]`);
         if(targetRadio) targetRadio.checked = true;
 
@@ -1038,7 +1099,6 @@
 
         document.getElementById('form-modal').style.display = 'flex';
     }
-
     function closeModal() {
         document.getElementById('form-modal').style.display = 'none';
     }
@@ -1049,6 +1109,8 @@
         const url = document.getElementById('item-url').value.trim();
         const platform = document.querySelector('input[name="item-platform"]:checked').value;
         const category = document.getElementById('item-category').value;
+        // جلب قيمة الصورة
+        const imageUrl = document.getElementById('item-image-url').value.trim();
         const notes = document.getElementById('item-notes').value.trim();
 
         if(!name || !url) {
@@ -1059,7 +1121,7 @@
         if(id) {
             items = items.map(item => {
                 if(item.id === id) {
-                    return { ...item, name, url, platform, category, notes };
+                    return { ...item, name, url, platform, category, imageUrl, notes };
                 }
                 return item;
             });
@@ -1070,6 +1132,7 @@
                 url,
                 platform,
                 category,
+                imageUrl, // حفظ المتغير الجديد هنا
                 notes,
                 favorite: false,
                 lastFollowed: null,
@@ -1245,6 +1308,40 @@
             }
         };
         reader.readAsText(file);
+    }
+
+    // دالة ذكية لتحديد مصدر الصورة (مخصصة أو لوجو الموقع التلقائي)
+    function getItemAvatarSrc(item) {
+        if (item.imageUrl && item.imageUrl.trim() !== '') {
+            return item.imageUrl.trim();
+        }
+        // في حال عدم وجود صورة مخصصة، يتم استخراج الدومين من الرابط وجلب الفافيكون تلقائياً عبر خدمة جوجل الآمنة
+        try {
+            const urlObj = new URL(item.url);
+            return `https://www.google.com/s2/favicons?sz=64&domain=${urlObj.hostname}`;
+        } catch (e) {
+            return ''; // إذا كان الرابط مكتوباً بشكل غير صحيح
+        }
+    }
+
+    // تحديث المعاينة الحية للصورة داخل النافذة المنبثقة
+    function updateModalImagePreview() {
+        const url = document.getElementById('item-image-url').value.trim();
+        const img = document.getElementById('modal-preview-img');
+        const txt = document.getElementById('modal-preview-text');
+
+        if (url) {
+            img.src = url;
+            img.style.display = 'block';
+            txt.innerText = 'معاينة صورة البروفيل المخصصة';
+            img.onerror = function() {
+                img.style.display = 'none';
+                txt.innerText = '⚠️ رابط الصورة غير صالح أو لا يدعم العرض المباشر';
+            };
+        } else {
+            img.style.display = 'none';
+            txt.innerText = 'سيتم جلب لوجو الموقع تلقائياً في حال عدم وضع صورة';
+        }
     }
 </script>
 </body>
