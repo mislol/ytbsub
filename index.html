@@ -834,7 +834,7 @@
 
                 const matchesSearch = nameMatch || notesMatch || platformMatch || catMatch;
                 const matchesPlatform = (selectedPlatformFilter === 'الكل') || (item.platform === selectedPlatformFilter);
-                
+
                 return matchesCategory && matchesSearch && matchesPlatform;
             });
 
@@ -851,16 +851,59 @@
                 `;
                 section.appendChild(header);
 
+                // قائمة البطاقات (تتحول الفئة بناءً على وضع العرض النشط)
                 const cardsList = document.createElement('div');
-                cardsList.className = 'cards-list';
+                if (currentView === 'list') {
+                    cardsList.className = 'cards-list-simple';
+                } else {
+                    cardsList.className = 'cards-list';
+                }
 
                 categoryItems.forEach((item) => {
                     const card = document.createElement('div');
-                    card.className = `card ${item.favorite ? 'favorite' : ''}`;
                     
-                    const showReorder = sortBy === 'custom' ? 'flex' : 'none';
-                    
-                    card.innerHTML = `
+                    if (currentView === 'list') {
+                        // كود بناء السطر المبسط الخالي من المشتتات والآمن للهواتف
+                        card.className = `simple-list-item ${item.favorite ? 'favorite' : ''}`;
+                        card.setAttribute('onclick', `openLink('${item.url}'); trackVisit('${item.id}');`);
+                        card.innerHTML = `
+                            <div class="simple-item-content">
+                                <span class="simple-item-fav">${item.favorite ? '★' : '☆'}</span>
+                                <span class="simple-item-emoji">${getPlatformIcon(item.platform)}</span>
+                                <span class="simple-item-name">${item.name}</span>
+                            </div>
+                            <span style="font-size: 14px; color: var(--text-muted); padding-left: 5px;">➔</span>
+                        `;
+                    } else {
+                        // كود بناء البطاقة الافتراضية التفصيلية
+                        card.className = `card ${item.favorite ? 'favorite' : ''}`;
+                        const showReorder = sortBy === 'custom' ? 'flex' : 'none';
+                        card.innerHTML = `
+                            <div class="card-header">
+                                <div class="card-title" onclick="openLink('${item.url}')">
+                                    ${item.favorite ? '⭐ ' : ''}${item.name}
+                                </div>
+                                <button class="card-fav-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}')" title="تثبيت في الأعلى">★</button>
+                            </div>
+                            <span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span>
+                            <div class="card-notes">${item.notes || 'لا توجد ملاحظات...'}</div>
+                            <div class="card-meta">آخر متابعة: ${getRelativeTime(item.lastFollowed)}</div>
+                            
+                            <div class="reorder-btns" style="display: ${showReorder}">
+                                <button class="reorder-btn" onclick="moveItem('${item.id}', -1)" title="نقل للأعلى">▲</button>
+                                <button class="reorder-btn" onclick="moveItem('${item.id}', 1)" title="نقل للأسفل">▼</button>
+                            </div>
+
+                            <div class="card-actions">
+                                <a href="${item.url}" target="_blank" onclick="trackVisit('${item.id}')" style="background-color: var(--accent-color); color: white; border: none;">فتح</a>
+                                <button class="btn-follow-check" onclick="markAsFollowed('${item.id}')">✔ تمت</button>
+                                <button class="btn-edit" onclick="openEditModal('${item.id}')">تعديل</button>
+                                <button class="btn-delete" onclick="deleteItem('${item.id}')">حذف</button>
+                            </div>
+                        `;
+                    }
+                    cardsList.appendChild(card);
+                });
                         <div class="card-header">
                             <div class="card-title" onclick="openLink('${item.url}')">
                                 ${item.favorite ? '⭐ ' : ''}${item.name}
@@ -891,7 +934,21 @@
             }
         });
     }
+// التبديل بين العرض التفصيلي والمبسط
+    function toggleView() {
+        currentView = currentView === 'grid' ? 'list' : 'grid';
+        localStorage.setItem('library_view', currentView);
+        updateViewToggleButton();
+        renderApp();
+    }
 
+    // تحديث نص أيقونة زر التبديل
+    function updateViewToggleButton() {
+        const btn = document.getElementById('view-toggle');
+        if (btn) {
+            btn.innerText = currentView === 'grid' ? '📋 عرض مبسط' : '🎴 عرض تفصيلي';
+        }
+    }
     // إدارة الوضع الليلي
     function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
