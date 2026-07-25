@@ -904,30 +904,6 @@
                     }
                     cardsList.appendChild(card);
                 });
-                        <div class="card-header">
-                            <div class="card-title" onclick="openLink('${item.url}')">
-                                ${item.favorite ? '⭐ ' : ''}${item.name}
-                            </div>
-                            <button class="card-fav-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}')" title="تثبيت في الأعلى">★</button>
-                        </div>
-                        <span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span>
-                        <div class="card-notes">${item.notes || 'لا توجد ملاحظات...'}</div>
-                        <div class="card-meta">آخر متابعة: ${getRelativeTime(item.lastFollowed)}</div>
-                        
-                        <div class="reorder-btns" style="display: ${showReorder}">
-                            <button class="reorder-btn" onclick="moveItem('${item.id}', -1)" title="نقل للأعلى">▲</button>
-                            <button class="reorder-btn" onclick="moveItem('${item.id}', 1)" title="نقل للأسفل">▼</button>
-                        </div>
-
-                        <div class="card-actions">
-                            <a href="${item.url}" target="_blank" onclick="trackVisit('${item.id}')" style="background-color: var(--accent-color); color: white; border: none;">فتح</a>
-                            <button class="btn-follow-check" onclick="markAsFollowed('${item.id}')">✔ تمت</button>
-                            <button class="btn-edit" onclick="openEditModal('${item.id}')">تعديل</button>
-                            <button class="btn-delete" onclick="deleteItem('${item.id}')">حذف</button>
-                        </div>
-                    `;
-                    cardsList.appendChild(card);
-                });
 
                 section.appendChild(cardsList);
                 contentArea.appendChild(section);
