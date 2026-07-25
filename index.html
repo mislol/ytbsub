@@ -1,1 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 مكتبتي التعليمية - My Learning Library</title>
+    <style>
+        /* المتغيرات وتصميم الألوان للوضع الافتراضي والداكن */
+        :root {
+            --bg-color: #f4f6f9;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --fav-color: #f59e0b;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
 
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --container-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        /* الإحصائيات */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .stat-num {
+            font-weight: bold;
+            color: var(--accent-color);
+            display: block;
+            font-size: 18px;
+        }
+
+        /* أدوات التحكم */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 2;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .select-sort {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 15px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .btn-add:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .filters-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-pill {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .filter-pill.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* تصاميم التصنيفات والبطاقات */
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .cards-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) {
+            .cards-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            background: var(--container-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card.favorite {
+            border-color: var(--fav-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-fav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .card-fav-btn.active {
+            color: var(--fav-color);
+        }
+
+        .platform-badge {
+            display: inline-block;
+            background: var(--bg-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+
+        .card-notes {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            min-height: 18px;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .card-actions button, .card-actions a {
+            flex: 1;
+            text-align: center;
+            padding: 6px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .card-actions .btn-follow-check {
+            background-color: #10b981;
+            color: white;
+            border: none;
+        }
+
+        .card-actions .btn-follow-check:hover {
+            background-color: #059669;
+        }
+
+        .card-actions .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+        }
+
+        .card-actions .btn-delete:hover {
+            background-color: #dc2626;
+        }
+
+        .card-actions .btn-edit {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+        }
+
+        .card-actions .btn-edit:hover {
+            background-color: #2563eb;
+        }
+
+        .reorder-btns {
+            position: absolute;
+            left: 10px;
+            top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .reorder-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 2px 4px;
+            font-size: 10px;
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+
+        /* النوافذ المنبثقة (Modals) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--container-bg);
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .platform-radios {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .platform-radios label {
+            font-weight: normal;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* تصميم قائمة إدارة التصنيفات */
+        .category-manage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            font-size: 14px;
+        }
+
+        .category-manage-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* أدوات النسخ الاحتياطي والتصدير */
+        .backup-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .backup-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .backup-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 13px;
+        }
+
+        .backup-btn:hover {
+            background: var(--border-color);
+        }
+
+        #import-file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📚 مكتبتي التعليمية</h1>
+        <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">🌙 الوضع الداكن</button>
+    </header>
+
+    <!-- لوحة إحصائيات سريعة -->
+    <div class="stats-bar">
+        <div class="stat-item">إجمالي الصفحات: <span class="stat-num" id="stat-total">0</span></div>
+        <div class="stat-item">المفضلة ⭐: <span class="stat-num" id="stat-fav">0</span></div>
+        <div class="stat-item">على YouTube: <span class="stat-num" id="stat-yt">0</span></div>
+        <div class="stat-item">على Facebook: <span class="stat-num" id="stat-fb">0</span></div>
+    </div>
+
+    <!-- أدوات البحث والتصفية والفرز -->
+    <div class="controls">
+        <div class="search-row">
+            <input type="text" class="search-input" id="search-bar" placeholder="🔍 ابحث بالاسم، التصنيف، الملاحظات..." oninput="renderApp()">
+            
+            <select id="sort-select" class="select-sort" onchange="renderApp()" title="اختر طريقة فرز العناصر">
+                <option value="custom">الترتيب المخصص ⇅</option>
+                <option value="alpha">الاسم أبجدياً (أ-ي)</option>
+                <option value="recent-followed">آخر متابعة (الأحدث أولاً)</option>
+                <option value="oldest-followed">آخر متابعة (الأقدم أولاً)</option>
+                <option value="newest-added">الأحدث إضافة</option>
+            </select>
+
+            <button class="btn-add" onclick="openAddModal()">+ إضافة مصدر</button>
+            <button class="btn-secondary" onclick="openCategoriesModal()">🏷️ إدارة التصنيفات</button>
+        </div>
+
+        <!-- تصفية حسب المنصة -->
+        <div class="filters-group" id="platform-filters">
+            <span style="font-size: 13px; font-weight: bold;">المنصة:</span>
+            <button class="filter-pill active" onclick="filterPlatform('الكل')">الكل</button>
+            <button class="filter-pill" onclick="filterPlatform('YouTube')">YouTube</button>
+            <button class="filter-pill" onclick="filterPlatform('Facebook')">Facebook</button>
+            <button class="filter-pill" onclick="filterPlatform('TikTok')">TikTok</button>
+            <button class="filter-pill" onclick="filterPlatform('X')">X</button>
+            <button class="filter-pill" onclick="filterPlatform('موقع')">موقع</button>
+        </div>
+    </div>
+
+    <!-- منطقة عرض التصنيفات والصفحات -->
+    <div id="content-area"></div>
+
+    <!-- تذييل الصفحة مع خيارات النسخ الاحتياطي -->
+    <div class="backup-section">
+        <span style="font-size: 12px; color: var(--text-muted);">* البيانات محفوظة محلياً في جهازك. يرجى تصدير نسخة احتياطية دورياً.</span>
+        <div class="backup-btns">
+            <button class="backup-btn" onclick="exportData()">💾 تصدير JSON</button>
+            <button class="backup-btn" onclick="triggerImport()">📂 استيراد JSON</button>
+            <input type="file" id="import-file-input" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
+</div>
+
+<!-- النافذة المنبثقة للإضافة والتعديل للمصادر -->
+<div class="modal" id="form-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">إضافة مصدر جديد</h3>
+            <button onclick="closeModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color);">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="item-id">
+            
+            <div class="form-group">
+                <label for="item-name">اسم الصفحة/المصدر:</label>
+                <input type="text" id="item-name" placeholder="مثال: Andrew Huberman">
+            </div>
+
+            <div class="form-group">
+                <label for="item-url">الرابط:</label>
+                <input type="text" id="item-url" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label>المنصة:</label>
+                <div class="platform-radios">
+                    <label><input type="radio" name="item-platform" value="YouTube" checked> 🎥 YouTube</label>
+                    <label><input type="radio" name="item-platform" value="Facebook"> 👥 Facebook</label>
+                    <label><input type="radio" name="item-platform" value="TikTok"> 🎵 TikTok</label>
+                    <label><input type="radio" name="item-platform" value="X"> 🐦 X</label>
+                    <label><input type="radio" name="item-platform" value="موقع"> 🌐 موقع</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="item-category">التصنيف:</label>
+                <select id="item-category">
+                    <!-- يتم ملؤها ديناميكياً برمجياً -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="item-notes">ملاحظات:</label>
+                <textarea id="item-notes" placeholder="اكتب ملاحظاتك هنا..." rows="2"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="backup-btn" onclick="closeModal()">إلغاء</button>
+            <button class="btn-add" onclick="saveItem()">حفظ</button>
+        </div>
+    </div>
+</div>
+
+<!-- النافذة المنبثقة لإدارة التصنيفات -->
+<div class="modal" id="categories-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🏷️ إدارة التصنيفات</h3>
+            <button onclick="closeCategoriesModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color);">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- نموذج إضافة تصنيف جديد -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="new-category-input" placeholder="مثال: 🎨 تصميم" class="search-input" style="font-size: 14px; padding: 8px 12px; height: auto;">
+                <button class="btn-add" onclick="addNewCategory()" style="padding: 8px 15px; font-size: 14px;">إضافة</button>
+            </div>
+            
+            <!-- قائمة عرض وإجراء تعديل وحذف التصنيفات -->
+            <div id="categories-list-container" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <!-- يتم ملؤها ديناميكياً برمجياً -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="backup-btn" onclick="closeCategoriesModal()">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تهيئة البيانات والتحميل
+    let items = [];
+    let categories = [];
+    let selectedPlatformFilter = 'الكل';
+
+    window.onload = function() {
+        // تحميل المصادر التعليمية
+        if(localStorage.getItem('my_learning_library')) {
+            items = JSON.parse(localStorage.getItem('my_learning_library'));
+        } else {
+            // بيانات تجريبية افتراضية للمرة الأولى
+            items = [
+                { id: '1700000000000', name: 'Andrew Huberman', url: 'https://youtube.com', platform: 'YouTube', category: '🧠 علم النفس', notes: 'بودكاست ممتاز للصحة النفسية والجسدية', favorite: true, lastFollowed: '2026-07-22T10:00:00.000Z', order: 0 },
+                { id: '1700000000001', name: 'Jeremy Ethier', url: 'https://youtube.com', platform: 'YouTube', category: '🏋️ رياضة', notes: 'تمارين رياضية مبنية على أبحاث علمية', favorite: false, lastFollowed: null, order: 0 },
+                { id: '1700000000002', name: 'Sophian physical trainer', url: 'https://facebook.com', platform: 'Facebook', category: '🏋️ رياضة', notes: 'مدرب لياقة بدنية', favorite: false, lastFollowed: null, order: 1 }
+            ];
+            saveToLocalStorage();
+        }
+
+        // تحميل التصنيفات
+        if(localStorage.getItem('my_learning_categories')) {
+            categories = JSON.parse(localStorage.getItem('my_learning_categories'));
+        } else {
+            // تصنيفات افتراضية للمرة الأولى
+            categories = ["🏋️ رياضة", "💻 AI + Technology", "📚 كتب", "🧠 علم النفس", "🎓 تعليم", "💰 أعمال"];
+            saveCategoriesToLocalStorage();
+        }
+        
+        // تحميل الوضع الليلي المحفوظ
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').innerText = '☀️ الوضع المضيء';
+        }
+
+        renderApp();
+    };
+
+    function saveToLocalStorage() {
+        localStorage.setItem('my_learning_library', JSON.stringify(items));
+    }
+
+    function saveCategoriesToLocalStorage() {
+        localStorage.setItem('my_learning_categories', JSON.stringify(categories));
+    }
+
+    // تصفية المنصات
+    function filterPlatform(platform) {
+        selectedPlatformFilter = platform;
+        document.querySelectorAll('#platform-filters .filter-pill').forEach(pill => {
+            pill.classList.remove('active');
+            if(pill.innerText.trim() === platform) {
+                pill.classList.add('active');
+            }
+        });
+        renderApp();
+    }
+
+    // حساب الوقت النسبي
+    function getRelativeTime(dateString) {
+        if (!dateString) return 'لم تتم المتابعة بعد';
+        const now = new Date();
+        const past = new Date(dateString);
+        const diffMs = now - past;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return 'الآن';
+        if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+        if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+        if (diffDays === 1) return 'أمس';
+        if (diffDays === 2) return 'منذ يومين';
+        if (diffDays <= 10) return `منذ ${diffDays} أيام`;
+        return `منذ ${diffDays} يوم`;
+    }
+
+    // الحصول على أيقونة مناسبة للمنصة بشكل مباشر
+    function getPlatformIcon(platform) {
+        switch(platform) {
+            case 'YouTube': return '🎥';
+            case 'Facebook': return '👥';
+            case 'TikTok': return '🎵';
+            case 'X': return '🐦';
+            default: return '🌐';
+        }
+    }
+
+    // تحديث الإحصائيات في الأعلى
+    function updateStats() {
+        document.getElementById('stat-total').innerText = items.length;
+        document.getElementById('stat-fav').innerText = items.filter(i => i.favorite).length;
+        document.getElementById('stat-yt').innerText = items.filter(i => i.platform === 'YouTube').length;
+        document.getElementById('stat-fb').innerText = items.filter(i => i.platform === 'Facebook').length;
+    }
+
+    // بناء الواجهة ديناميكياً
+    function renderApp() {
+        updateStats();
+        // جلب نص البحث وتحويله لـ LowerCase مع معالجة الفراغات الزائدة
+        const searchQuery = document.getElementById('search-bar').value.toLowerCase().trim();
+        const sortBy = document.getElementById('sort-select').value;
+        const contentArea = document.getElementById('content-area');
+        contentArea.innerHTML = '';
+
+        // فرز وتحضير العناصر بناءً على الفرز المختار
+        let sortedItems = [...items];
+
+        if (sortBy === 'custom') {
+            sortedItems.sort((a, b) => {
+                if (a.favorite && !b.favorite) return -1;
+                if (!a.favorite && b.favorite) return 1;
+                return (a.order || 0) - (b.order || 0);
+            });
+        } else if (sortBy === 'alpha') {
+            sortedItems.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar', { sensitivity: 'base' }));
+        } else if (sortBy === 'recent-followed') {
+            sortedItems.sort((a, b) => {
+                const dateA = a.lastFollowed ? new Date(a.lastFollowed) : new Date(0);
+                const dateB = b.lastFollowed ? new Date(b.lastFollowed) : new Date(0);
+                return dateB - dateA;
+            });
+        } else if (sortBy === 'oldest-followed') {
+            sortedItems.sort((a, b) => {
+                const dateA = a.lastFollowed ? new Date(a.lastFollowed) : new Date(0);
+                const dateB = b.lastFollowed ? new Date(b.lastFollowed) : new Date(0);
+                return dateA - dateB;
+            });
+        } else if (sortBy === 'newest-added') {
+            sortedItems.sort((a, b) => Number(b.id) - Number(a.id));
+        }
+
+        // معالجة عرض التصنيفات الحالية
+        categories.forEach(category => {
+            // تصفية العناصر الخاصة بهذا التصنيف بناءً على البحث والمنصة
+            const categoryItems = sortedItems.filter(item => {
+                const matchesCategory = item.category === category;
+                
+                // معالجة آمنة للبحث لمنع انهيار البرنامج في حال وجود حقول فارغة
+                const nameMatch = (item.name || '').toLowerCase().includes(searchQuery);
+                const notesMatch = (item.notes || '').toLowerCase().includes(searchQuery);
+                const platformMatch = (item.platform || '').toLowerCase().includes(searchQuery);
+                const catMatch = (item.category || '').toLowerCase().includes(searchQuery);
+
+                const matchesSearch = nameMatch || notesMatch || platformMatch || catMatch;
+                const matchesPlatform = (selectedPlatformFilter === 'الكل') || (item.platform === selectedPlatformFilter);
+                
+                return matchesCategory && matchesSearch && matchesPlatform;
+            });
+
+            // نعرض قسم التصنيف إذا كان يحتوي على عناصر تفي بالبحث، أو إذا كان البحث فارغاً أصلاً
+            if (categoryItems.length > 0 || searchQuery === '') {
+                const section = document.createElement('div');
+                section.className = 'category-section';
+
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerHTML = `
+                    <span>${category}</span>
+                    <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);">${categoryItems.length} مصادر</span>
+                `;
+                section.appendChild(header);
+
+                const cardsList = document.createElement('div');
+                cardsList.className = 'cards-list';
+
+                categoryItems.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = `card ${item.favorite ? 'favorite' : ''}`;
+                    
+                    const showReorder = sortBy === 'custom' ? 'flex' : 'none';
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <div class="card-title" onclick="openLink('${item.url}')">
+                                ${item.favorite ? '⭐ ' : ''}${item.name}
+                            </div>
+                            <button class="card-fav-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}')" title="تثبيت في الأعلى">★</button>
+                        </div>
+                        <span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span>
+                        <div class="card-notes">${item.notes || 'لا توجد ملاحظات...'}</div>
+                        <div class="card-meta">آخر متابعة: ${getRelativeTime(item.lastFollowed)}</div>
+                        
+                        <div class="reorder-btns" style="display: ${showReorder}">
+                            <button class="reorder-btn" onclick="moveItem('${item.id}', -1)" title="نقل للأعلى">▲</button>
+                            <button class="reorder-btn" onclick="moveItem('${item.id}', 1)" title="نقل للأسفل">▼</button>
+                        </div>
+
+                        <div class="card-actions">
+                            <a href="${item.url}" target="_blank" onclick="trackVisit('${item.id}')" style="background-color: var(--accent-color); color: white; border: none;">فتح</a>
+                            <button class="btn-follow-check" onclick="markAsFollowed('${item.id}')">✔ تمت</button>
+                            <button class="btn-edit" onclick="openEditModal('${item.id}')">تعديل</button>
+                            <button class="btn-delete" onclick="deleteItem('${item.id}')">حذف</button>
+                        </div>
+                    `;
+                    cardsList.appendChild(card);
+                });
+
+                section.appendChild(cardsList);
+                contentArea.appendChild(section);
+            }
+        });
+    }
+
+    // إدارة الوضع الليلي
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('theme-toggle').innerText = '🌙 الوضع الداكن';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('theme-toggle').innerText = '☀️ الوضع المضيء';
+        }
+    }
+
+    function openLink(url) {
+        window.open(url, '_blank');
+    }
+
+    function markAsFollowed(id) {
+        items = items.map(item => {
+            if (item.id === id) {
+                return { ...item, lastFollowed: new Date().toISOString() };
+            }
+            return item;
+        });
+        saveToLocalStorage();
+        renderApp();
+    }
+
+    function trackVisit(id) {
+        markAsFollowed(id);
+    }
+
+    function toggleFavorite(id) {
+        items = items.map(item => {
+            if (item.id === id) {
+                return { ...item, favorite: !item.favorite };
+            }
+            return item;
+        });
+        saveToLocalStorage();
+        renderApp();
+    }
+
+    function moveItem(id, direction) {
+        const index = items.findIndex(item => item.id === id);
+        if (index === -1) return;
+        
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= items.length) return;
+
+        const temp = items[index];
+        items[index] = items[newIndex];
+        items[newIndex] = temp;
+
+        items.forEach((item, i) => item.order = i);
+
+        saveToLocalStorage();
+        renderApp();
+    }
+
+    function deleteItem(id) {
+        if(confirm('هل أنت متأكد من حذف هذا المصدر؟')) {
+            items = items.filter(item => item.id !== id);
+            saveToLocalStorage();
+            renderApp();
+        }
+    }
+
+    // تحديث خيارات قائمة الاختيار المنسدلة للتصنيفات داخل نافذة الإضافة
+    function updateCategoryDropdown() {
+        const select = document.getElementById('item-category');
+        select.innerHTML = '';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.innerText = cat;
+            select.appendChild(option);
+        });
+    }
+
+    // إدارة النوافذ المنبثقة للمصادر
+    function openAddModal() {
+        updateCategoryDropdown();
+        document.getElementById('modal-title').innerText = "إضافة مصدر جديد";
+        document.getElementById('item-id').value = "";
+        document.getElementById('item-name').value = "";
+        document.getElementById('item-url').value = "";
+        document.querySelector('input[name="item-platform"][value="YouTube"]').checked = true;
+        document.getElementById('item-category').selectedIndex = 0;
+        document.getElementById('item-notes').value = "";
+        document.getElementById('form-modal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+        updateCategoryDropdown();
+        const item = items.find(i => i.id === id);
+        if(!item) return;
+
+        document.getElementById('modal-title').innerText = "تعديل المصدر";
+        document.getElementById('item-id').value = item.id;
+        document.getElementById('item-name').value = item.name;
+        document.getElementById('item-url').value = item.url;
+        
+        // التحقق من تعيين المنصة المسجلة سابقاً
+        const targetRadio = document.querySelector(`input[name="item-platform"][value="${item.platform}"]`);
+        if(targetRadio) targetRadio.checked = true;
+
+        document.getElementById('item-category').value = item.category;
+        document.getElementById('item-notes').value = item.notes || '';
+
+        document.getElementById('form-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('form-modal').style.display = 'none';
+    }
+
+    function saveItem() {
+        const id = document.getElementById('item-id').value;
+        const name = document.getElementById('item-name').value.trim();
+        const url = document.getElementById('item-url').value.trim();
+        const platform = document.querySelector('input[name="item-platform"]:checked').value;
+        const category = document.getElementById('item-category').value;
+        const notes = document.getElementById('item-notes').value.trim();
+
+        if(!name || !url) {
+            alert('الرجاء إدخال الاسم والرابط على الأقل.');
+            return;
+        }
+
+        if(id) {
+            items = items.map(item => {
+                if(item.id === id) {
+                    return { ...item, name, url, platform, category, notes };
+                }
+                return item;
+            });
+        } else {
+            const newItem = {
+                id: Date.now().toString(),
+                name,
+                url,
+                platform,
+                category,
+                notes,
+                favorite: false,
+                lastFollowed: null,
+                order: items.length
+            };
+            items.push(newItem);
+        }
+
+        saveToLocalStorage();
+        closeModal();
+        renderApp();
+    }
+
+    /* 🏷️ وظائف نظام إدارة التصنيفات المضافة حديثاً */
+    function openCategoriesModal() {
+        renderCategoriesManageList();
+        document.getElementById('categories-modal').style.display = 'flex';
+    }
+
+    function closeCategoriesModal() {
+        document.getElementById('categories-modal').style.display = 'none';
+    }
+
+    // بناء قائمة إدارة التصنيفات داخل النافذة المنبثقة
+    function renderCategoriesManageList() {
+        const container = document.getElementById('categories-list-container');
+        container.innerHTML = '';
+
+        categories.forEach(cat => {
+            const row = document.createElement('div');
+            row.className = 'category-manage-item';
+            row.innerHTML = `
+                <span>${cat}</span>
+                <div class="category-manage-actions">
+                    <button class="btn-small btn-edit" onclick="editCategoryName('${cat}')">تعديل</button>
+                    <button class="btn-small btn-delete" onclick="deleteCategory('${cat}')">حذف</button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    // إضافة تصنيف جديد يدوياً
+    function addNewCategory() {
+        const input = document.getElementById('new-category-input');
+        const name = input.value.trim();
+        if(!name) return;
+
+        if(categories.includes(name)) {
+            alert('هذا التصنيف مسجل مسبقاً!');
+            return;
+        }
+
+        categories.push(name);
+        saveCategoriesToLocalStorage();
+        input.value = '';
+        renderCategoriesManageList();
+        renderApp();
+    }
+
+    // تعديل اسم تصنيف حالي وتعديل كافة المصادر المرتبطة به تلقائياً
+    function editCategoryName(oldName) {
+        const newName = prompt(`تعديل اسم التصنيف "${oldName}" إلى الاسم الجديد:`, oldName);
+        if(!newName || newName.trim() === '' || newName.trim() === oldName) return;
+
+        const trimmedNewName = newName.trim();
+        if(categories.includes(trimmedNewName)) {
+            alert('اسم التصنيف الجديد موجود بالفعل!');
+            return;
+        }
+
+        // 1. تحديث قائمة التصنيفات
+        const catIdx = categories.indexOf(oldName);
+        if(catIdx !== -1) {
+            categories[catIdx] = trimmedNewName;
+        }
+
+        // 2. تحديث كافة العناصر التي تتبع هذا التصنيف دفعة واحدة
+        items = items.map(item => {
+            if(item.category === oldName) {
+                return { ...item, category: trimmedNewName };
+            }
+            return item;
+        });
+
+        saveCategoriesToLocalStorage();
+        saveToLocalStorage();
+        renderCategoriesManageList();
+        renderApp();
+    }
+
+    // حذف التصنيف والتعامل التلقائي والآمن مع العناصر داخله
+    function deleteCategory(catName) {
+        const affectedCount = items.filter(item => item.category === catName).length;
+        let msg = `هل أنت متأكد من حذف تصنيف "${catName}"؟`;
+        if (affectedCount > 0) {
+            msg += `\nتنبيه: يوجد ${affectedCount} مصادر تنتمي لهذا التصنيف. سيتم نقلها تلقائياً إلى تصنيف "📁 غير مصنف" لحمايتها من الضياع.`;
+        }
+
+        if(confirm(msg)) {
+            // إزالة التصنيف من القائمة الأساسية
+            categories = categories.filter(c => c !== catName);
+
+            // إضافة تصنيف افتراضي في حال لم يكن موجوداً من قبل لاستقبال العناصر المهجورة
+            if (affectedCount > 0 && !categories.includes("📁 غير مصنف")) {
+                categories.push("📁 غير مصنف");
+            }
+
+            // ترحيل المصادر إلى التصنيف الافتراضي الآمن
+            items = items.map(item => {
+                if (item.category === catName) {
+                    return { ...item, category: "📁 غير مصنف" };
+                }
+                return item;
+            });
+
+            saveCategoriesToLocalStorage();
+            saveToLocalStorage();
+            renderCategoriesManageList();
+            renderApp();
+        }
+    }
+
+    /* 💾 عمليات تصدير واستيراد البيانات */
+    function exportData() {
+        // نقوم بتصدير المصادر والتصنيفات في كائن واحد مدمج لضمان سلامة النسخة الاحتياطية
+        const exportObj = {
+            library: items,
+            categories: categories
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "library_backup.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function triggerImport() {
+        document.getElementById('import-file-input').click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // تحقق إذا كان الملف يحتوي على البنية المشتركة الجديدة (المصادر والتصنيفات معاً)
+                if (importedData && Array.isArray(importedData.library) && Array.isArray(importedData.categories)) {
+                    items = importedData.library;
+                    categories = importedData.categories;
+                    saveToLocalStorage();
+                    saveCategoriesToLocalStorage();
+                    renderApp();
+                    alert('تم استيراد المصادر وتحديث قائمة التصنيفات الخاصة بك بنجاح.');
+                } 
+                // توافقية رجعية مع ملفات التصدير القديمة التي تحتوي على مصفوفة مصادر فقط
+                else if (Array.isArray(importedData)) {
+                    items = importedData;
+                    saveToLocalStorage();
+                    renderApp();
+                    alert('تم استيراد قائمة المصادر بنجاح.');
+                } else {
+                    alert('صيغة الملف غير متوافقة.');
+                }
+            } catch (err) {
+                alert('حدث خطأ أثناء قراءة ملف JSON أو فك تشفيره.');
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+</body>
+</html>
